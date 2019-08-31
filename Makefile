@@ -5,10 +5,10 @@ BIN=		bin/*.cpp
 SOURCE:= 	src/*.cpp
 
 
-EXE=lml.bin
+EXE=		lml.bin
 
 all:
-	$(CC) $(CFLAGS) $(INCLUDE) $(SOURCE) $(BIN) -o $(EXE)
+	$(CC) $(CFLAGS) $(INCLUDE) $(BIN) $(SOURCE) -o $(EXE)
 
 clean:
 	rm $(EXE)
