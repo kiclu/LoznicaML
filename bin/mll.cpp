@@ -59,7 +59,6 @@ MLL::Matrix& MLL::operator+(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
         std::cout << "Unmatched sizes" << std::endl;
         exit(100);
     }
-
     static MLL::Matrix result(t_matrix1.get_height(), t_matrix1.get_width());
 
     for(int i=0;i<result.get_height();i++){
