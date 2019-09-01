@@ -29,10 +29,6 @@ double* MLL::Matrix::get_data(){
     return tmp;
 }
 
-double MLL::sigm(double x){
-    return 1 / (1 + exp(-x));
-}
-
 MLL::Matrix::Matrix(int t_height, int t_width){
     matrix_alloc(t_height, t_width);
 }
@@ -115,7 +111,15 @@ void MLL::Matrix::debug_out(){
     }
 }
 
-void MLL::Network::read_from_file(const char*){
+void MLL::Network::randomize(){
+
+}
+
+void MLL::Network::write_to_file(const char* t_filename){
+
+}
+
+void MLL::Network::read_from_file(const char* t_filename){
 
 }
 

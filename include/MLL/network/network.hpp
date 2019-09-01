@@ -17,7 +17,8 @@ namespace MLL{
         std::vector<Matrix> m_weights;
         std::vector<Matrix> m_biases;
 
-        //void randomize();
+        void randomize();
+        void write_to_file(const char*);
         void read_from_file(const char*);
     public:
         Network(std::vector<int>);  // Create a new network
@@ -29,6 +30,8 @@ namespace MLL{
 
         std::vector<double> get_result();
         double get_cost();
+
+
     };
 }
 

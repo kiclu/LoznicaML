@@ -37,7 +37,8 @@ namespace MLL{
         void debug_out();
     };
 
-    double sigm(double);
+    double sigm(double x){ return 1 / (1 + exp(-x)); }
+    double sigm_deriv(double){ return sigm(x) * (1 - sigm(x)); }
 }
 
 
