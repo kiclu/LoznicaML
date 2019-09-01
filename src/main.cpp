@@ -12,8 +12,43 @@ void show_help();
 int main(int argc, char* argv[]){
     //argument_parser(argc, argv);
 
-    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 500, 0);
 
+    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 60000, 0);
+
+    Network n1(std::vector({784, 16, 16, 10}));
+
+
+
+    for(int i=0;i<60000;i+=100){
+        double cost = 0;
+        for(int j=0;j<100;j++){
+            n1.set_input(data.get_at(i+j).pixel, data.get_at(i+j).label);
+            n1.calculate();
+            cost += n1.get_cost();
+
+            for(int i=0;i<28;i++){
+                for(int j=0;j<28;j++){
+                    if(data.get_at(tmp).pixel.at(i*28 + j) > 50){
+                        std::cout << (char)219 << (char)219;
+                    }
+                    else{
+                        std::cout << "  ";
+                    }
+                }
+                std::cout << std::endl;
+            }
+            std::cout << data.get_at(tmp).label << std::endl << std::endl;
+
+            n1.debug_out();
+
+            system("pause");
+            system("CLS");
+        }
+        //std::cout << cost << std::endl;
+        //n1.backprop();
+    }
+
+    /*
     for(int tmp=0;tmp<500;tmp++){
 
         for(int i=0;i<28;i++){
@@ -30,6 +65,8 @@ int main(int argc, char* argv[]){
         std::cout << data.get_at(tmp).label << std::endl << std::endl;
 
     }
+
+    */
 
 
     return 0;

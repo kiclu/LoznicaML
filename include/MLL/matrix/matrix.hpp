@@ -18,6 +18,7 @@ namespace MLL{
         double& get_at(int t_y, int t_x) { return m_matrix.at(t_y).at(t_x); }
     public:
         Matrix(int, int);
+        Matrix(int, int, double);
         Matrix(int, int, double*);
         Matrix(Matrix&);
 
@@ -29,7 +30,9 @@ namespace MLL{
         // Sigmoid squishification
         friend Matrix& operator~(Matrix&);
 
-        std::vector<double>& operator[](int);
+        std::vector<double>& operator[](int) { return m_matrix.at(t_index); }
+
+        void randomize();
 
         int get_height() const { return m_matrix.size(); }
         int get_width() const { return m_matrix.at(0).size(); }

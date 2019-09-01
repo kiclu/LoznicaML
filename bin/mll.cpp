@@ -33,6 +33,15 @@ MLL::Matrix::Matrix(int t_height, int t_width){
     matrix_alloc(t_height, t_width);
 }
 
+MLL::Matrix::Matrix(int t_height, int t_width, double t_fill){
+    matrix_alloc(t_height, t_width);
+    for(int i=0;i<get_height();i++){
+        for(int j=0;j<get_width();j++){
+            m_matrix[i][j] = t_fill;
+        }
+    }
+}
+
 MLL::Matrix::Matrix(int t_height, int t_width, double* t_data){
     matrix_alloc(t_height, t_width);
     copy_data(t_data);
@@ -42,7 +51,6 @@ MLL::Matrix::Matrix(MLL::Matrix& t_matrix){
     matrix_alloc(t_matrix.get_height(), t_matrix.get_width());
     copy_data(t_matrix.get_data());
 }
-
 
 MLL::Matrix& MLL::Matrix::operator=(MLL::Matrix& t_matrix){
     matrix_alloc(t_matrix.get_height(), t_matrix.get_width());
@@ -98,8 +106,17 @@ MLL::Matrix& MLL::operator~(MLL::Matrix& t_matrix){
     return result;
 }
 
-std::vector<double>& MLL::Matrix::operator[](int t_index){
-    return m_matrix.at(t_index);
+void MLL::Matrix::randomize(int t_layer_size){
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator(seed);
+    std::normal_distribution<double> distribution(0.0, 1.0);
+
+    double coef = sqrt(1 / (double)t_layer_size);
+    for(int i=0;i<get_height();i++){
+        for(int j=0;j<get_width();j++){
+            m_matrix[i][j] = distribution(generator) * coef;
+        }
+    }
 }
 
 void MLL::Matrix::debug_out(){
@@ -112,7 +129,10 @@ void MLL::Matrix::debug_out(){
 }
 
 void MLL::Network::randomize(){
-
+    for(int i=0;i<m_weights.size();i++){
+        m_weights[i].randomize(m_layers[i]);
+        m_biases[i] = Matrix(m_layers[i], 1, 0);
+    }
 }
 
 void MLL::Network::write_to_file(const char* t_filename){
@@ -123,10 +143,32 @@ void MLL::Network::read_from_file(const char* t_filename){
 
 }
 
+void MLL::Network::clear_gradient(){
+    for(int i=0;i<m_layers.size()-1;i++){
+        m_weight_gradient[i] = Matrix(m_weights[i].get_height(), m_weights[i].get_width(), 0);
+        m_bias_gradient[i] = Matrix(m_biases[i].get_height(), m_biases[i].get_width(), 0);
+    }
+}
+
 MLL::Network::Network(std::vector<int> t_layers){
     m_layers = t_layers;
 
-    //randomize();
+    m_activations.resize(m_layers.size());
+
+    for(int i=0;i<m_layers.size();i++){
+        m_activations[i] = Matrix(m_layers[i], 1);
+    }
+
+    m_weights.resize(m_layers.size() - 1);
+    m_biases.resize(m_layers.size() - 1);
+
+    for(int i=0;i<m_layers.size()-1;i++){
+        m_weights[i] = Matrix(m_layers[i+1], m_layers[i]);
+        m_biases[i] = Matrix(m_layers[i], 1);
+    }
+
+    randomize();
+    clear_gradient();
 }
 
 MLL::Network::Network(const char* t_filename){
@@ -134,7 +176,8 @@ MLL::Network::Network(const char* t_filename){
 }
 
 void MLL::Network::set_input(std::vector<double> t_input, int t_label){
-    //m_activations[0] = t_input;         //FIX
+    m_activations[0] = Matrix(m_layers[1], m_layers[0], t_input.data());
+
     m_label = t_label;
 }
 
@@ -145,7 +188,7 @@ void MLL::Network::calculate(){
 }
 
 std::vector<double> MLL::Network::get_result(){
-    std::vector<double> result;
+    static std::vector<double> result;
     result.resize(m_layers.back());
 
     for(int i=0;i<result.size();i++){
@@ -165,4 +208,44 @@ double MLL::Network::get_cost(){
         cost += SQR(result_vector[i] - correct_vector[i]);
 
     return cost;
+}
+
+void MLL::Network::backprop(){
+
+}
+
+void MLL::Network::debug_out(){
+    std::cout << "-----------------------------------------------" << std::endl;
+    std::cout << "Layers: ";
+    for(int i=0;i<m_layers.size();i++){
+        std::cout << m_layers[i] << " ";
+    }
+    std::cout << std::endl;
+
+    for(int i=0;i<m_layers.size();i++){
+        m_activations[i].debug_out();
+        std::cout << std::endl << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+
+    for(int i=0;i<m_layers.size()-1;i++){
+        m_weights[i].debug_out();
+        std::cout << std::endl << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+
+    for(int i=0;i<m_layers.size()-1;i++){
+        m_biases[i].debug_out();
+        std::cout << std::endl << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+
+
+    std::vector<double> result = get_result();
+
+    for(int i=0;i<result.size();i++){
+        std::cout << result[i] << " ";
+    }
+    std::cout << get_cost();
+    std::cout << "-----------------------------------------------" << std::endl;
 }
