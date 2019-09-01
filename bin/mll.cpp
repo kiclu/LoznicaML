@@ -115,6 +115,10 @@ void MLL::Matrix::debug_out(){
     }
 }
 
+void MLL::Network::read_from_file(const char*){
+
+}
+
 MLL::Network::Network(std::vector<int> t_layers){
     m_layers = t_layers;
 
@@ -122,17 +126,17 @@ MLL::Network::Network(std::vector<int> t_layers){
 }
 
 MLL::Network::Network(const char* t_filename){
-    read_from_file(t_filename);
+    //read_from_file(t_filename);
 }
 
 void MLL::Network::set_input(std::vector<double> t_input, int t_label){
-    m_activation[0] = t_input;
+    //m_activations[0] = t_input;         //FIX
     m_label = t_label;
 }
 
 void MLL::Network::calculate(){
     for(int i=1;i<m_layers.size();i++){
-        m_activation[i] = ~(m_weights[i-1] * m_activations[i-1] + biases[i-1]);
+        m_activations[i] = ~(m_weights[i-1] * m_activations[i-1] + m_biases[i-1]);
     }
 }
 
@@ -159,40 +163,40 @@ double MLL::Network::get_cost(){
     return cost;
 }
 
-Dataset::Dataset(const char* t_imgfile, const char* t_lblfile, int t_lenght=IMAGE_NUM,int t_pos=0){
+Dataset::Dataset(const char* t_imgfile, const char* t_lblfile, int t_length=IMAGE_NUM,int t_pos=0){
     int a;
-    char tmp;
-    ifstream fin;
+    unsigned char tmp;
+    std::ifstream fin;
 
-    data.resize(t_lenght);
+    data.resize(t_length);
 
-    fin.open(t_filename, ios::binary | ios::read);
-    fin.seekg(0,ios::beg)
+    fin.open(t_imgfile, std::ios::binary | std::ios::in);
+    fin.seekg(0, std::ios::beg);
 
     for(int i=0;i<4;i++){
-        fin.read(char*(&a),sizeof(a));
+        fin.read((char*)&a,sizeof(a));
     }
 
-    fin.seekg(t_pos*IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char),ios::beg);
-    for(int i=0;i<data.lenght();i++){
+    fin.seekg(t_pos*IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char), std::ios::cur);
+    for(int i=0;i<data.size();i++){
         for(int j=0;j<IMAGE_WIDTH*IMAGE_HEIGHT;j++){
-            fin.read(char*(&tmp),sizeof(char);
-            data[i].pixel[j]=tmp/(double)255;
+            fin.read((char*)&tmp, sizeof(char));
+            data[i].pixel[j] = tmp; //div by 255
         }
     }
     fin.close();
 
-    fin.open(t_lblfile);
-    fin.seekg(0,ios::beg);
+    fin.open(t_lblfile, std::ios::binary | std::ios::in);
+    fin.seekg(0, std::ios::beg);
 
     for(int i=0;i<2;i++){
-        fin.read(char*(&a),sizeof(a));
+        fin.read((char*)&a, sizeof(a));
     }
 
-    fin.seekg(t_pos*sizeof(char));
-    for(int i=0;i<data.lenght();i++){
-        fin.read(char*(&tmp),sizeof(char));
-        data[i].label=(tmp-'0');
+    fin.seekg(t_pos*sizeof(char), std::ios::cur);
+    for(int i=0;i<data.size();i++){
+        fin.read((char*)&tmp, sizeof(char));
+        data[i].label=(tmp);
     }
     fin.close();
 }

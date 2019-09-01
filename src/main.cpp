@@ -26,20 +26,29 @@ int main(){
     std::cout << m3[1][0] << std::endl;
     */
 
-    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 1);
+    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 500, 0);
 
-    for(int i=0;i<28;i++){
-        for(int j=0;j<28;j++){
-            if(data.get_at(0).pixel.at(i*28 + j) > 0.5){
-                std::cout << (char)219 << (char)219;
+    /*
+    int tmp;
+    std::cin >> tmp;
+    */
+
+    for(int tmp=0;tmp<500;tmp++){
+
+        for(int i=0;i<28;i++){
+            for(int j=0;j<28;j++){
+                if(data.get_at(tmp).pixel.at(i*28 + j) > 50){
+                    std::cout << (char)219 << (char)219;
+                }
+                else{
+                    std::cout << "  ";
+                }
             }
-            else{
-                std::cout << "  ";
-            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
-    }
+        std::cout << data.get_at(tmp).label << std::endl << std::endl;
 
+    }
 
     return 0;
 }

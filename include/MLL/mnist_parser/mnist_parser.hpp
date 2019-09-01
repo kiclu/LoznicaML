@@ -5,6 +5,9 @@
 #define IMAGE_WIDTH 28
 #define IMAGE_NUM 60000
 
+#include<fstream>
+#include<iostream>
+
 /*
 MNIST DATABASE
 http://yann.lecun.com/exdb/mnist/
@@ -46,14 +49,11 @@ Networks:
 6-layer NN 784-2500-2000-1500-1000-500-10 (on GPU) [elastic distortions] ~ 99.65%
 */
 
-#include<fstream>
-
 struct Image{
-private:
     std::vector<double> pixel;
     int label;
-public:
-    Image(){ pixel.resize(IMAGE_HEIGHT * IMAGE_WIDTH) }
+
+    Image(){ pixel.resize(IMAGE_HEIGHT * IMAGE_WIDTH); }
 };
 
 
@@ -66,7 +66,7 @@ public:
     Dataset(const char*, const char*, int, int);
     //readDataBase(ifstream, int);
 
-    Image& get_at(int t_index){ return data[i]; }
+    Image& get_at(int t_index){ return data[t_index]; }
 };
 
 
