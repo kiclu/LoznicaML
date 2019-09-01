@@ -3,6 +3,7 @@
 #include<MLL/mll.hpp>
 
 int main(){
+    /*
     double data1[] = {
         4, 5, 2, 9, 4,
         4, 5, 2, 6, 5,
@@ -23,6 +24,24 @@ int main(){
     auto m3 = m1 * m2;
 
     std::cout << m3[1][0] << std::endl;
+    */
+
+    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 1);
+
+    for(int i=0;i<28;i++){
+        for(int j=0;j<28;j++){
+            if(data.get_at(0).pixel.at(i*28 + j) > 0.5){
+                std::cout << (char)219 << (char)219;
+            }
+            else{
+                std::cout << "  ";
+            }
+        }
+        std::cout << std::endl;
+    }
+
 
     return 0;
 }
+
+// ispisi(pozovi("cpp.exe", 2, "slika.jpg", "???"));

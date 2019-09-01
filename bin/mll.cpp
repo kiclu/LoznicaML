@@ -1,5 +1,7 @@
 #include<MLL/mll.hpp>
 
+#define SQR(x) ((x) * (x))
+
 void MLL::Matrix::matrix_alloc(int t_height, int t_width){
     m_matrix.resize(t_height);
     for(int i=0;i<t_height;i++){
@@ -111,4 +113,86 @@ void MLL::Matrix::debug_out(){
         }
         std::cout << std::endl;
     }
+}
+
+MLL::Network::Network(std::vector<int> t_layers){
+    m_layers = t_layers;
+
+    //randomize();
+}
+
+MLL::Network::Network(const char* t_filename){
+    read_from_file(t_filename);
+}
+
+void MLL::Network::set_input(std::vector<double> t_input, int t_label){
+    m_activation[0] = t_input;
+    m_label = t_label;
+}
+
+void MLL::Network::calculate(){
+    for(int i=1;i<m_layers.size();i++){
+        m_activation[i] = ~(m_weights[i-1] * m_activations[i-1] + biases[i-1]);
+    }
+}
+
+std::vector<double> MLL::Network::get_result(){
+    std::vector<double> result;
+    result.resize(m_layers.back());
+
+    for(int i=0;i<result.size();i++){
+        result[i] = m_activations.back()[i][0];
+    }
+
+    return result;
+}
+
+double MLL::Network::get_cost(){
+    auto result_vector = get_result();
+    std::vector<double> correct_vector(m_layers.back(), 0.f);
+    correct_vector[m_label] = 1.f;
+
+    double cost = 0.f;
+    for(int i=0;i<m_layers.back();i++)
+        cost += SQR(result_vector[i] - correct_vector[i]);
+
+    return cost;
+}
+
+Dataset::Dataset(const char* t_imgfile, const char* t_lblfile, int t_lenght=IMAGE_NUM,int t_pos=0){
+    int a;
+    char tmp;
+    ifstream fin;
+
+    data.resize(t_lenght);
+
+    fin.open(t_filename, ios::binary | ios::read);
+    fin.seekg(0,ios::beg)
+
+    for(int i=0;i<4;i++){
+        fin.read(char*(&a),sizeof(a));
+    }
+
+    fin.seekg(t_pos*IMAGE_WIDTH*IMAGE_HEIGHT*sizeof(char),ios::beg);
+    for(int i=0;i<data.lenght();i++){
+        for(int j=0;j<IMAGE_WIDTH*IMAGE_HEIGHT;j++){
+            fin.read(char*(&tmp),sizeof(char);
+            data[i].pixel[j]=tmp/(double)255;
+        }
+    }
+    fin.close();
+
+    fin.open(t_lblfile);
+    fin.seekg(0,ios::beg);
+
+    for(int i=0;i<2;i++){
+        fin.read(char*(&a),sizeof(a));
+    }
+
+    fin.seekg(t_pos*sizeof(char));
+    for(int i=0;i<data.lenght();i++){
+        fin.read(char*(&tmp),sizeof(char));
+        data[i].label=(tmp-'0');
+    }
+    fin.close();
 }
