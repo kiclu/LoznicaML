@@ -5,6 +5,7 @@
 #define IMAGE_WIDTH 28
 #define IMAGE_NUM 60000
 
+#include<vector>
 #include<fstream>
 #include<iostream>
 

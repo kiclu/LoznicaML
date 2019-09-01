@@ -1,6 +1,7 @@
 #include<iostream>
 
 #include<MLL/mll.hpp>
+#include<mnist_parser/mnist_parser.hpp>
 
 int main(){
     /*
