@@ -29,7 +29,7 @@ namespace MLL{
         // Sigmoid squishification
         friend Matrix& operator~(Matrix&);
 
-        std::vector<double>& operator[](int t_index) { return m_matrix[t_index]; }
+        std::vector<double>& operator[](int t_index) { return m_matrix.at(t_index); }
 
         void randomize(int);
         void fill(int, int, double);
