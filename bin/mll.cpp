@@ -106,8 +106,10 @@ void MLL::Matrix::debug_out(){
     std::cout << std::endl;
     std::cout << "[" << get_height() << " x " << get_width() << "]" << std::endl;
     std::cout << std::endl;
+    std::cout << "Show? Y/n ";
     int c = getchar();
-    if(c == 's'){
+    int e = getchar();
+    if(c == 'y'){
         for(int i=0;i<get_height();i++){
             for(int j=0;j<get_width();j++){
                 std::cout << m_matrix[i][j] << " ";
@@ -142,7 +144,9 @@ double MLL::sigm(double x){ return 1 / (1 + exp(-x)); }
 double MLL::sigm_deriv(double x){ return sigm(x) * (1 - sigm(x)); }
 
 void MLL::Network::randomize(){
-
+    for(int i=0;i<m_weights.size();i++){
+        m_weights[i].randomize(m_layers[i]);
+    }
 }
 
 void MLL::Network::write_to_file(const char* t_filename){
@@ -161,8 +165,19 @@ MLL::Network::Network(std::vector<int> t_layers){
     m_layers = t_layers;
 
     m_activations.resize(t_layers.size());
-    for(int i=0;i<m_layers.size();i++){
-        m_activations[i].fill(m_layers[i], 1, 0);
+    for(int i=0;i<m_activations.size();i++){
+        m_activations[i].matrix_alloc(m_layers[i], 1);
+    }
+
+    m_weights.resize(t_layers.size() - 1);
+    for(int i=0;i<m_weights.size();i++){
+        m_weights[i].matrix_alloc(m_layers[i+1], m_layers[i]);
+    }
+    randomize();
+
+    m_biases.resize(t_layers.size() - 1);
+    for(int i=0;i<m_biases.size();i++){
+        m_biases[i].matrix_alloc(m_layers[i+1], 1);
     }
 }
 
@@ -191,7 +206,7 @@ void MLL::Network::backprop(){
 }
 
 void MLL::Network::debug_out(){
-    std::cout << "-------------------------------" << std::endl << "Network debug:";
+    std::cout << "===============================" << std::endl << "Network debug:";
     std::cout << std::endl << std::endl;
 
     std::cout << "Layer count: " << m_layers.size() << std::endl << "[ ";
@@ -200,10 +215,45 @@ void MLL::Network::debug_out(){
     }
     std::cout << "]" << std::endl << std::endl;
 
-    std::cout << "Activation layers: " << m_activations.size() << std::endl;
-    for(int i=0;i<m_activations.size();i++){
-        //m_activations[i].debug_out();
+    {
+        std::cout << "Activation layers: " << m_activations.size() << std::endl;
+        std::cout << "Show? Y/n " ;
+        int c = getchar();
+        int e = getchar();
+        if(c == 'y'){
+            for(int i=0;i<m_activations.size();i++){
+                m_activations[i].debug_out();
+            }
+        }
     }
 
-    std::cout << std::endl << std::endl << "-------------------------------" << std::endl;
+
+
+    {
+        std::cout << "Weight layers: " << m_weights.size() << std::endl;
+        std::cout << "Show? Y/n " ;
+        int c = getchar();
+        int e = getchar();
+        if(c == 'y'){
+            for(int i=0;i<m_weights.size();i++){
+                m_weights[i].debug_out();
+            }
+        }
+    }
+
+
+
+    {
+        std::cout << "Bias layers: " << m_biases.size() << std::endl;
+        std::cout << "Show? Y/n " ;
+        int c = getchar();
+        int e = getchar();
+        if(c == 'y'){
+            for(int i=0;i<m_biases.size();i++){
+                m_biases[i].debug_out();
+            }
+        }
+    }
+
+    std::cout << std::endl << std::endl << "===============================" << std::endl;
 }

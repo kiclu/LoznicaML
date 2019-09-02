@@ -11,7 +11,7 @@ namespace MLL{
     private:
         std::vector< std::vector<double> > m_matrix;
 
-        void matrix_alloc(int, int);
+
 
         double& get_at(int t_y, int t_x) { return m_matrix.at(t_y).at(t_x); }
     public:
@@ -30,6 +30,7 @@ namespace MLL{
         std::vector<double>& operator[](int t_index) { return m_matrix.at(t_index); }
 
         void randomize(int);
+        void matrix_alloc(int, int);
         void fill(int, int, double);
 
         int get_height() const { return m_matrix.size(); }
