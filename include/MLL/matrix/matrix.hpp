@@ -12,15 +12,14 @@ namespace MLL{
         std::vector< std::vector<double> > m_matrix;
 
         void matrix_alloc(int, int);
-        void copy_data(double*);
-        double* get_data();
 
         double& get_at(int t_y, int t_x) { return m_matrix.at(t_y).at(t_x); }
     public:
+        Matrix();
         Matrix(int, int);
         Matrix(int, int, double);
         Matrix(int, int, double*);
-        Matrix(Matrix&);
+        //Matrix(Matrix&);
 
         Matrix& operator=(Matrix&);
 
@@ -30,18 +29,22 @@ namespace MLL{
         // Sigmoid squishification
         friend Matrix& operator~(Matrix&);
 
-        std::vector<double>& operator[](int) { return m_matrix.at(t_index); }
+        std::vector<double>& operator[](int t_index) { return m_matrix[t_index]; }
 
-        void randomize();
+        void randomize(int);
+        void fill(int, int, double);
 
         int get_height() const { return m_matrix.size(); }
         int get_width() const { return m_matrix.at(0).size(); }
 
         void debug_out();
+
+        void copy_data(double*);
+        double* get_data();
     };
 
-    double sigm(double x){ return 1 / (1 + exp(-x)); }
-    double sigm_deriv(double){ return sigm(x) * (1 - sigm(x)); }
+    double sigm(double);
+    double sigm_deriv(double);
 }
 
 
