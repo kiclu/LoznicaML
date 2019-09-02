@@ -87,7 +87,7 @@ MLL::Matrix& MLL::operator*(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
     for(int i=0;i<result.get_height();i++){
         for(int j=0;j<result.get_width();j++){
             for(int k=0;k<t_matrix1.get_width();k++){
-                result[i][j] += t_matrix1[i][k] * t_matrix2[k][j];
+                //result[i][j] += t_matrix1[i][k] * t_matrix2[k][j];
             }
         }
     }
