@@ -200,12 +200,15 @@ void MLL::Network::set_input(std::vector<double> t_input, int t_label){
 }
 
 void MLL::Network::calculate(){
+    std::cout << "Calculate: " << std::endl;
     for(int i=1;i<m_layers.size();i++){
         std::cout << i << std::endl;
-        m_activations[i] = ~(m_weights[i-1] * m_activations[i-1] + m_biases[i-1]);
+        m_activations[i] = m_weights[i-1] * m_activations[i-1];
 
         m_activations[i].debug_out();
     }
+    std::cout << "Calculate end" << std::endl;
+    int c = getchar();
 }
 
 std::vector<double> MLL::Network::get_result(){
