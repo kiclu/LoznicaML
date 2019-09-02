@@ -9,16 +9,38 @@
 void argument_parser(int, char**);
 void show_help();
 
+void matrix_test(){
+    double data1[] = {
+        4,  5,  2,  9,  4,
+        4,  5,  2,  6,  5,
+        5, 10,  8,  0,  1
+    };
+
+    double data2[] = {5, 3, 5, 10, 8};
+
+    double data3[] = {1, 1, 1};
+
+    MLL::Matrix m1(3, 5, data1);
+    MLL::Matrix m2(5, 1, data2);
+    MLL::Matrix m3(3, 1, data3);
+
+    auto m4 = (m1*m2) + m3;
+
+    m4.debug_out();
+}
+
 int main(int argc, char* argv[]){
     //argument_parser(argc, argv);
 
 
-    Dataset data("resources/train-images.idx3-ubyte", "resources/train-labels.idx1-ubyte", 10000, 0);
+    Dataset data("resources/train-images.idx3-ubyte",
+    "resources/train-labels.idx1-ubyte", 10000, 0);
+
 
     MLL::Network n1(std::vector<int>({784, 16, 16, 10}));
     n1.debug_out();
-    int c = getchar();
 
+    /*
     for(int i=0;i<500;i+=100){
         double cost = 0;
         for(int j=0;j<100;j++){
@@ -50,6 +72,7 @@ int main(int argc, char* argv[]){
         //std::cout << cost << std::endl;
         //n1.backprop();
     }
+    */
 
     /*
     for(int tmp=0;tmp<500;tmp++){

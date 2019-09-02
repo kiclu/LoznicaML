@@ -17,9 +17,7 @@ namespace MLL{
     public:
         Matrix();
         Matrix(int, int);
-        Matrix(int, int, double);
         Matrix(int, int, double*);
-        //Matrix(Matrix&);
 
         Matrix& operator=(Matrix&);
 

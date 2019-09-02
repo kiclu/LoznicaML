@@ -10,7 +10,7 @@
 
 namespace MLL{
     class Network{
-    private:
+    public:     // TODO: MAKE PRIVATE
         std::vector<int> m_layers;
 
         std::vector<Matrix> m_activations;
@@ -32,7 +32,7 @@ namespace MLL{
         Network(std::vector<int>);  // Create a new network
         Network(const char*);       // Load a trained network from a file
 
-        void set_input(std::vector<double>, int);
+        void set_input_layer(std::vector<double>, int);
 
         void calculate();
 
