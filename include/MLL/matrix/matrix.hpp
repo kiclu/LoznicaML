@@ -5,6 +5,8 @@
 #include<stdlib.h>
 #include<iostream>
 #include<math.h>
+#include<time.h>
+
 
 namespace MLL{
     class Matrix{
@@ -26,9 +28,11 @@ namespace MLL{
 
         // Sigmoid squishification
         friend Matrix& operator~(Matrix&);
+        friend Matrix& operator!(Matrix&);
 
         std::vector<double>& operator[](int t_index) { return m_matrix.at(t_index); }
 
+        void randomize();
         void randomize(int);
         void matrix_alloc(int, int);
         void fill(int, int, double);
@@ -44,6 +48,9 @@ namespace MLL{
 
     double sigm(double);
     double sigm_deriv(double);
+    Matrix& operator+(Matrix&, Matrix&);
+    Matrix& operator*(Matrix&, Matrix&);
+    Matrix& operator~(Matrix&);
 }
 
 

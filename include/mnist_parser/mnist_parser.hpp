@@ -68,6 +68,8 @@ public:
     //readDataBase(ifstream, int);
 
     Image& get_at(int t_index){ return data[t_index]; }
+
+    Image& operator[](int t_index){ return data[t_index]; }
 };
 
 
