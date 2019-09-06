@@ -11,8 +11,6 @@
 namespace MLL{
     class Network{
     public:     // TODO: MAKE PRIVATE
-        bool m_training_mode;
-
         std::vector<int> m_layers;
         int m_last_layer;
 

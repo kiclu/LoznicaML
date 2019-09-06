@@ -1,137 +1,210 @@
 #include<iostream>
-#include<fstream>
+#include<iomanip>
+#include<time.h>
 #include<string>
 #include<string.h>
-#include<time.h>
 
 #include<MLL/mll.hpp>
 #include<mnist_parser/mnist_parser.hpp>
 
-std::vector<MLL::Network> n({
-    MLL::Network(std::vector<int>({784, 16, 16, 10})),
-    MLL::Network(std::vector<int>({784, 300, 100, 10})),
-    MLL::Network(std::vector<int>({784, 500, 150, 10})),
-    MLL::Network(std::vector<int>({784, 2500, 2000, 1500, 1000, 500, 10}))
-});
+int correct = 0;
+int all = 0;
+double cost = 0;
+double cost_sum = 0;
 
-bool new_training = 0;
+struct Config{
+    bool training = false;
+    bool test = false;
 
-int layer_count = 0;
-int* layer_size = nullptr;
+    int layer_count = 0;
+    int* layer_size = nullptr;
 
-int data_size = 0;
-int subset_size = 0;
-char* data_file = nullptr;
-char* label_file = nullptr;
+    int data_size = 0;
+    int subset_size = 0;
+    char* data_file = nullptr;
+    char* label_file = nullptr;
 
+    char* network_data = nullptr;
 
-char* output_data = nullptr;
-char* input_data = nullptr;
-
-
-bool debug = 0;
+    bool verbose = false;
+    bool debug = false;
+}global_cfg;
 
 void argument_parser(int, char**);
 void show_help();
 
-void digit_out();
+bool flag(char*, char*);
+
+void time_out(float);
+
+void cfg_debug(){
+    std::cout << global_cfg.training << std::endl;
+    std::cout << global_cfg.test << std::endl;
+
+    std::cout << global_cfg.layer_count << std::endl;
+    std::cout << "[ ";
+    for(int i=0;i<global_cfg.layer_count;i++){
+        std::cout << global_cfg.layer_size[i] << " ";
+    }
+    std::cout << "]" << std::endl;
+
+    std::cout << global_cfg.data_size << std::endl;
+    std::cout << global_cfg.subset_size << std::endl;
+    std::cout << global_cfg.data_file << std::endl;
+    std::cout << global_cfg.label_file << std::endl;
+
+    std::cout << global_cfg.network_data << std::endl;
+
+    std::cout << global_cfg.verbose << std::endl;
+    std::cout << global_cfg.debug << std::endl;
+}
 
 int main(int argc, char* argv[]){
     argument_parser(argc, argv);
 
-    int correct = 0;
-    int all = 0;
+    //cfg_debug();
 
-    std::cout << "Reading input files..." << std::endl;
-    Dataset training_data("resources/train-images.idx3-ubyte",
-    "resources/train-labels.idx1-ubyte", 60000, 0);
+    std::cout << "Reading the data..." << std::endl;
+    Dataset data(
+        global_cfg.data_file,
+        global_cfg.label_file,
+        global_cfg.data_size,
+        0
+    );
 
-    Dataset test_data("resources/t10k-images.idx3-ubyte",
-    "resources/t10k-labels.idx1-ubyte", 10000, 0);
+    std::cout << "Creating the network..." << std::endl;
+    MLL::Network net(
+        std::vector<int>(global_cfg.layer_size,
+        global_cfg.layer_size + global_cfg.layer_count)
+    );
 
-    Dataset& data = test_data;
+    if(!global_cfg.training) net.read_from_file(global_cfg.network_data);
 
-    //std::cout << "Select network [1 - " << n.size() << "]: ";
-    //int network_index;
-    //std::cin >> network_index;
-    //MLL::Network& network = n.at(network_index-1);
-
-    MLL::Network network(std::vector<int>({784, 16, 16, 10}));
-
-    std::cout << "Network setup..." << std::endl;
-    //network.debug_out();
-    network.read_from_file("training1.mlltd");
-    //network.debug_out();
+    std::cout << "Begin!" << std::endl;
     const clock_t begin_time = clock();
-    double cost = 0;
-    for(int i=0;i<10000;i+=20){
-        std::cout << "===========================\n";
+    for(int ss = 0; ss < global_cfg.data_size; ss += global_cfg.subset_size){
+        for(int k = 0; k < global_cfg.subset_size; k++){
+            int index = ss + k;
 
-        for(int j=0;j<20;j++){
-            //std::cout << "---------------------------" << std::endl;
 
-            //digit_out(data.get_at(i+j));
+            net.set_input_layer(data[index].pixel, data[index].label);
+            net.calculate();
 
-            network.set_input_layer(data.get_at(i+j).pixel, data.get_at(i+j).label);
-            network.calculate();
+            if(global_cfg.training) net.update_gradients();
 
-            //network.update_gradients();
-            //network.debug_out();
-
-            auto& res = network.get_result();
+            auto& res = net.get_result();
             double rm = res[0];
             int rmp = 0;
             for(int i=0;i<res.size();i++){
-                //std::cout << res[i] << std::endl;
-
                 if(res[i] > rm){
                     rm = res[i];
                     rmp = i;
                 }
             }
 
-            all++;
-            if(data.get_at(i+j).label == rmp)
+            if(data[index].label == rmp)
                 correct++;
+            all++;
 
-
-            //std::cout << data.get_at(i+j).label << " ~ " << rmp << std::endl << std::endl;
-
-            cost += network.get_cost();
-
-            //std::cout << std::endl << std::endl;
+            cost += net.get_cost();
+            cost_sum += net.get_cost();
         }
-        //network.backprop(20);
+        if(global_cfg.training) net.backprop(global_cfg.subset_size);
 
-        float time_elapsed_s = float( clock () - begin_time ) /  CLOCKS_PER_SEC;
-        float avg_time = time_elapsed_s / i;
-        float eta = (avg_time * (10000 - i)) / (float)3600;
-        std::cout << "Images done: " << i << '\n';
-        std::cout << "Avg cost: " << cost/(double)i << '\n';
-        std::cout << "Time elapsed: " << time_elapsed_s << "s" << '\n';
-        std::cout << "ETA: " << eta << "h" << '\n';
+        float time_elapsed = float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+        float avg_time = time_elapsed / (ss + global_cfg.subset_size);
+        float eta = (avg_time * (global_cfg.data_size - ss - global_cfg.subset_size));
+        std::cout << "Images done: " << ss + global_cfg.subset_size << '\n';
+        std::cout << "Avg cost: " << cost/(double)(ss + global_cfg.subset_size) << '\n';
+        std::cout << "Time elapsed: ";
+        time_out(time_elapsed);
+        std::cout << std::setprecision(3) << "Average time: " << avg_time << "s\n";
+        std::cout << "ETA: ";
+        time_out(eta);
+
+        if(!global_cfg.training){
+            std::cout << "\n\n";
+            std::cout << std::setprecision(4) << "Success rate: " << (correct / (double)all) * 100 << "%";
+        }
+        std::cout << "\n====================\n";
     }
 
+    std::cout << std::endl << std::endl;
+    std::cout << "Images done: " << global_cfg.data_size << '\n';
+    std::cout << "Avg cost: " << cost_sum/(double)all << '\n';
+    std::cout << "Time elapsed: ";
+    time_out(float( clock () - begin_time ) /  CLOCKS_PER_SEC);
 
-    //network.write_to_file("training2.mlltd");
-    std::cout << "PERCENT GUESSED: " << (correct/(double)all)*100 << "%" << std::endl;
+
+    if(!global_cfg.training){
+        std::cout << std::endl << std::endl;
+        std::cout << "SUCCESS RATE: " << std::setprecision(5) << (correct / (double)all) * 100 << "%\n";
+    }
+
+    if(global_cfg.training) net.write_to_file(global_cfg.network_data);
 
     return 0;
 }
 
 void argument_parser(int argc, char* argv[]){
-    for(int i=0;i<argc;i++){
-        std::cout << argv[i] << ", ";
-    }
-    std::cout << std::endl << "--------------------" << std::endl;
-
     if(argc > 1){
-        if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
+        if(flag(argv[1], "-h") || flag(argv[1], "--help") || flag(argv[1], "?"))
             show_help();
 
-        for(int i=0;i<argc;i++){
-            if(!strcmp(argv[i], "-o") || !strcmp(argv[i], "--open")){
-                new_training = false;
+        for(int i=1;i<argc;i++){
+            //  MODE
+            if(flag(argv[i], "-tr") || flag(argv[i], "--training")){
+                global_cfg.training = true;
+            }
+            if(flag(argv[i], "-t") || flag(argv[i], "--test")){
+                global_cfg.test = true;
+            }
+
+            //  NETWORK INFO
+            if(flag(argv[i], "-lc") || flag(argv[i], "--layer-count")){
+                global_cfg.layer_count = atoi(argv[++i]);
+            }
+
+            if(flag(argv[i], "-ls") || flag(argv[i], "--layer-size")){
+                if(!global_cfg.layer_count > 0)
+                    exit(0xEC0);
+                global_cfg.layer_size = new int(global_cfg.layer_count);
+                for(int j=0;j<global_cfg.layer_count;j++){
+                    global_cfg.layer_size[j] = atoi(argv[++i]);
+                }
+            }
+
+            //  FILE INFO
+            if(flag(argv[i], "-df") || flag(argv[i], "--data")){
+                global_cfg.data_file = new char(strlen(argv[++i]) + 1);
+                strcpy(global_cfg.data_file, argv[i]);
+            }
+
+            if(flag(argv[i], "-lf") || flag(argv[i], "--labels")){
+                global_cfg.label_file = new char(strlen(argv[++i]) + 1);
+                strcpy(global_cfg.label_file, argv[i]);
+            }
+
+            if(flag(argv[i], "-nd") || flag(argv[i], "--network-data")){
+                global_cfg.network_data = new char(strlen(argv[++i]) + 1);
+                strcpy(global_cfg.network_data, argv[i]);
+            }
+
+            //  DATASET INFO
+            if(flag(argv[i], "-ds") || flag(argv[i], "--data-size")){
+                global_cfg.data_size = atoi(argv[++i]);
+            }
+
+            if(flag(argv[i], "-ss") || flag(argv[i], "--subset-size")){
+                global_cfg.subset_size = atoi(argv[++i]);
+            }
+
+            //  MISC
+            if(flag(argv[i], "-d") || flag(argv[i], "--debug")){
+                global_cfg.debug = true;
+            }
+            if(flag(argv[i], "-v") || flag(argv[i], "--verbose")){
+                global_cfg.verbose = true;
             }
         }
     }
@@ -146,16 +219,16 @@ void show_help(){
     exit(0xF0);
 }
 
-void digit_out(Image& t_image){
-    for(int p=0;p<28;p++){
-        for(int q=0;q<28;q++){
-            if(t_image.pixel.at(p*28 + q) > 0.1){
-                std::cout << (char)219 << (char)219;
-            }
-            else{
-                std::cout << "  ";
-            }
-        }
-        std::cout << std::endl;
-    }
+bool flag(char* t_str1, char* t_str2){
+    return !strcmp(t_str1, t_str2);
+}
+
+void time_out(float t_sec){
+    int sec = t_sec;
+    int hr = sec / 3600;
+    sec = sec % 3600;
+    int mn = sec / 60;
+    sec = sec % 60;
+
+    std::cout << hr << "h " << mn << "m " << sec << "s\n";
 }

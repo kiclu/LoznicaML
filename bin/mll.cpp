@@ -180,28 +180,25 @@ double MLL::sigm_deriv(double x){ return sigm(x) * (1 - sigm(x)); }
 
 void MLL::Network::init(){
     m_activations.resize(m_layers.size());
-    if(m_training_mode) m_activation_gradient.resize(m_layers.size());
+    m_activation_gradient.resize(m_layers.size());
     for(unsigned i=0;i<m_activations.size();i++){
         m_activations[i].matrix_alloc(m_layers[i], 1);
-        if(m_training_mode)
-            m_activation_gradient[i].matrix_alloc(m_layers[i], 1);
+        m_activation_gradient[i].matrix_alloc(m_layers[i], 1);
     }
 
     m_weights.resize(m_layers.size() - 1);
-    if(m_training_mode) m_weight_gradient.resize(m_layers.size() - 1);
+    m_weight_gradient.resize(m_layers.size() - 1);
     for(unsigned i=0;i<m_weights.size();i++){
         m_weights[i].matrix_alloc(m_layers[i+1], m_layers[i]);
-        if(m_training_mode)
-            m_weight_gradient[i].matrix_alloc(m_layers[i+1], m_layers[i]);
+        m_weight_gradient[i].matrix_alloc(m_layers[i+1], m_layers[i]);
     }
     randomize();
 
     m_biases.resize(m_layers.size() - 1);
-    if(m_training_mode) m_bias_gradient.resize(m_layers.size() - 1);
+    m_bias_gradient.resize(m_layers.size() - 1);
     for(unsigned i=0;i<m_biases.size();i++){
         m_biases[i].matrix_alloc(m_layers[i+1], 1);
-        if(m_training_mode)
-            m_bias_gradient[i].matrix_alloc(m_layers[i+1], 1);
+        m_bias_gradient[i].matrix_alloc(m_layers[i+1], 1);
     }
 
 
@@ -346,7 +343,6 @@ void MLL::Network::clear_gradients(){
 MLL::Network::Network(std::vector<int> t_layers){
     m_layers = t_layers;
     m_last_layer = m_layers.size() - 1;
-    m_training_mode = false;
 
     init();
 }
@@ -371,10 +367,6 @@ void MLL::Network::calculate(){
     for(int i=0;i<m_layers.size()-1;i++){
         m_sums[i] = (m_weights[i] * m_activations[i]) + m_biases[i];
         m_activations[i+1] = ~m_sums[i];
-    }
-
-    if(m_training_mode){
-        update_gradients();
     }
 }
 
