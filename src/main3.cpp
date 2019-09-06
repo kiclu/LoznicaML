@@ -1,4 +1,3 @@
-/*
 #include<iostream>
 #include<string.h>
 
@@ -20,24 +19,30 @@ struct Config{
 
     bool verbose = false;
     bool debug = false;
-} global_conf;
-
+}global_cfg;
 
 void argument_parser(int, char**);
 void show_help();
 
-
 int main(int argc, char* argv[]){
     argument_parser(argc, argv);
 
+    Dataset data(
+        global_cfg.data_file,
+        global_cfg.label_file,
+        global_cfg.data_size,
+        0
+    );
 
-    Dataset data(   global_conf.data_file, global_conf.label_file,
-                    global_conf.data_size, 0);
+    MLL::Network net(
+        std::vector<int>(global_cfg.layer_size,
+        global_cfg.layer_size + global_cfg.layer_count)
+    );
 
-    auto net = *create_network();
+    if(!global_cfg.training) net.read_from_file(global_cfg.network_data);
 
-    for(int ss = 0; ss < global_conf.data_size; ss += global_conf.subset_size){
-        for(int k = 0; k < global_conf.subset_size; ++k){
+    for(int ss = 0; ss < global_cfg.data_size; ss += global_cfg.subset_size){
+        for(int k = 0; k < global_cfg.subset_size; ++k){
             int index = ss + k;
 
 
@@ -60,7 +65,7 @@ int main(int argc, char* argv[]){
 
             cost += net.get_cost();
         }
-        if(global_conf.training) net.backprop(global_conf.subset_size);
+        if(global_cfg.training) net.backprop(global_cfg.subset_size);
 
         float time_elapsed_s = float( clock () - begin_time ) /  CLOCKS_PER_SEC;
         float avg_time = time_elapsed_s / i;
@@ -71,20 +76,9 @@ int main(int argc, char* argv[]){
         std::cout << "ETA: " << eta << "h" << '\n';
     }
 
-    if(global_conf.training) net.write_to_file(global_conf.network_data);
+    if(global_cfg.training) net.write_to_file(global_cfg.network_data);
 
     return 0;
-}
-
-MLL::Network* create_network(){
-    MLL::Network* tmp;
-    if(global_conf.training)
-        tmp = new MLL::Network(std::vector<int>(global_conf.layer_size,
-                            global_conf.layer_size + global_conf.layer_count));
-    else
-        tmp = new MLL::Network(global_conf.network_data);
-
-    return tmp;
 }
 
 void argument_parser(int argc, char* argv[]){
@@ -97,7 +91,7 @@ void argument_parser(int argc, char* argv[]){
         if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
             show_help();
 
-        for(int i=0;i<argc;i++){
+        for(int i=1;i<argc;i++){
 
         }
     }
@@ -111,4 +105,3 @@ void show_help(){
     std::cout << help_text << std::endl;
     exit(0xF0);
 }
-*/

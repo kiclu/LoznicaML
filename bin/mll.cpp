@@ -33,8 +33,8 @@ MLL::Matrix& MLL::Matrix::operator=(MLL::Matrix& t_matrix){
 }
 
 MLL::Matrix& MLL::operator+(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
-    if( t_matrix1.get_height() != t_matrix2.get_height() ||
-        t_matrix1.get_width() != t_matrix2.get_width()){
+    if( t_matrix1.get_height()  !=  t_matrix2.get_height() ||
+        t_matrix1.get_width()   !=  t_matrix2.get_width()){
         std::cout << "Unmatched sizes (+)" << std::endl;
         t_matrix1.debug_out();
         t_matrix2.debug_out();
