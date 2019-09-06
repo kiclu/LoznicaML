@@ -18,7 +18,7 @@ Dataset::Dataset(const char* t_imgfile, const char* t_lblfile, int t_length=IMAG
     for(int i=0;i<data.size();i++){
         for(int j=0;j<IMAGE_WIDTH*IMAGE_HEIGHT;j++){
             fin.read((char*)&tmp, sizeof(char));
-            data[i].pixel[j] = tmp; //div by 255
+            data[i].pixel[j] = tmp/(double)255;
         }
     }
     fin.close();

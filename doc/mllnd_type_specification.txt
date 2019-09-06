@@ -1,0 +1,16 @@
+MACHINE LEARNING LIBRARY NETWORK DATA FILE (.mllnd)
+
+[offset]            [type]          [value]         [description]
+0000                32 bit integer  3 - 20          network layer count
+0004                32 bit integer  ??              layer size 0 (input layer)
+0008                32 bit integer  ??              layer size 1
+.......
+xxxx                double          ??              layer size X (output layer)
+xxxx                double          ??              weight[0][0][0]
+xxxx                double          ??              weight[0][0][1]
+.......
+xxxx                double          ??              weight[x][x][x]
+xxxx                double          ??              bias[0][0]
+xxxx                double          ??              bias[0][1]
+.......
+xxxx                double          ??              bias[x][x]
