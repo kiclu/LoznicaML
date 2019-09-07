@@ -15,6 +15,9 @@ double cost_sum = 0;
 struct Config{
     bool training = false;
     bool test = false;
+    bool single = false;
+
+    bool epoch = false;
 
     int layer_count = 0;
     int* layer_size = nullptr;
@@ -78,11 +81,19 @@ int main(int argc, char* argv[]){
         global_cfg.layer_size + global_cfg.layer_count)
     );
 
-    if(!global_cfg.training) net.read_from_file(global_cfg.network_data);
+    if( !global_cfg.training ||
+        (global_cfg.training && global_cfg.epoch)
+    ) net.read_from_file(global_cfg.network_data);
 
-    std::cout << "Begin!" << std::endl;
+    if(global_cfg.epoch){
+        std::cout << "Shuffling the data..." << std::endl;
+        data.shuffle();
+    }
+
+    std::cout << "Start" << std::endl;
     const clock_t begin_time = clock();
     for(int ss = 0; ss < global_cfg.data_size; ss += global_cfg.subset_size){
+        clock_t ss_time = clock();
         for(int k = 0; k < global_cfg.subset_size; k++){
             int index = ss + k;
 
@@ -111,14 +122,16 @@ int main(int argc, char* argv[]){
         }
         if(global_cfg.training) net.backprop(global_cfg.subset_size);
 
-        float time_elapsed = float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+        float time_elapsed = float( clock() - begin_time ) /  CLOCKS_PER_SEC;
+        float current_speed = global_cfg.subset_size / ((float(clock() - ss_time) / CLOCKS_PER_SEC));
         float avg_time = time_elapsed / (ss + global_cfg.subset_size);
-        float eta = (avg_time * (global_cfg.data_size - ss - global_cfg.subset_size));
+        float eta = (global_cfg.data_size - ss - global_cfg.subset_size) / current_speed;
         std::cout << "Images done: " << ss + global_cfg.subset_size << '\n';
         std::cout << "Avg cost: " << cost/(double)(ss + global_cfg.subset_size) << '\n';
+        std::cout << std::setprecision(3) << "Average time: " << avg_time << "s\n";
+        std::cout << std::setprecision(3) << "Current speed: " << (int)current_speed << "/s\n";
         std::cout << "Time elapsed: ";
         time_out(time_elapsed);
-        std::cout << std::setprecision(3) << "Average time: " << avg_time << "s\n";
         std::cout << "ETA: ";
         time_out(eta);
 
@@ -156,8 +169,13 @@ void argument_parser(int argc, char* argv[]){
             if(flag(argv[i], "-tr") || flag(argv[i], "--training")){
                 global_cfg.training = true;
             }
+
             if(flag(argv[i], "-t") || flag(argv[i], "--test")){
                 global_cfg.test = true;
+            }
+
+            if(flag(argv[i], "-s") || flag(argv[i], "--single")){
+                global_cfg.single = true;
             }
 
             //  NETWORK INFO
@@ -203,8 +221,13 @@ void argument_parser(int argc, char* argv[]){
             if(flag(argv[i], "-d") || flag(argv[i], "--debug")){
                 global_cfg.debug = true;
             }
+
             if(flag(argv[i], "-v") || flag(argv[i], "--verbose")){
                 global_cfg.verbose = true;
+            }
+
+            if(flag(argv[i], "-e") || flag(argv[i], "--epoch")){
+                global_cfg.epoch = true;
             }
         }
     }
@@ -213,7 +236,10 @@ void argument_parser(int argc, char* argv[]){
 void show_help(){
     std::ifstream fin("help_page.txt");
 
-    std::string help_text((std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>());
+    std::string help_text(
+        (std::istreambuf_iterator<char>(fin)),
+        std::istreambuf_iterator<char>()
+    );
 
     std::cout << help_text << std::endl;
     exit(0xF0);
