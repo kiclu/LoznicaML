@@ -16,3 +16,7 @@ Options:
 -lf,    --label-file        Location of label file
 
 -nd,    --network-data      Location of network data file (.mllnd)
+
+-d,     --debug             Debug mode
+-v,     --verbose           Verbose mode
+-e,     --epoch             Trains given network data for one more epoch
