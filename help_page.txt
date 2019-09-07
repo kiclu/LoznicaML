@@ -8,15 +8,17 @@ Options:
 -lc,    --layer-count       Specifies the number of layers in the network.
 -ls,    --layer-size        Number of neurons for each layer of network.
                             Next n numbers will represent the n layers specified in layer count flag.
-                            (must be after the layer count flag)
--ds,    --data-size         Specifies the number of data samples
--ss,    --subset-size       Size of subset, used in training mode only
+                            (must be after the layer count flag).
+-ds,    --data-size         Specifies the number of data samples.
+-ss,    --subset-size       Size of subset, used in training mode only.
 
--df,    --data-file         Location of data file
--lf,    --label-file        Location of label file
+-df,    --data-file         Location of data file.
+-lf,    --label-file        Location of label file.
 
--nd,    --network-data      Location of network data file (.mllnd)
+-nd,    --network-data      Location of network data file (.mllnd).
 
--d,     --debug             Debug mode
--v,     --verbose           Verbose mode
--e,     --epoch             Trains given network data for one more epoch
+-e,     --epoch             Trains given network data for one more epoch.
+-lr,    --learning-rate     The coefficient that determines how fast the parameters of the network change.
+
+-d,     --debug             Debug mode.
+-v,     --verbose           Verbose mode.

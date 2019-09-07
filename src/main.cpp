@@ -18,6 +18,7 @@ struct Config{
     bool single = false;
 
     bool epoch = false;
+    double learning_rate = 1;
 
     int layer_count = 0;
     int* layer_size = nullptr;
@@ -120,7 +121,7 @@ int main(int argc, char* argv[]){
             cost += net.get_cost();
             cost_sum += net.get_cost();
         }
-        if(global_cfg.training) net.backprop(global_cfg.subset_size);
+        if(global_cfg.training) net.backprop(global_cfg.subset_size, global_cfg.learning_rate);
 
         float time_elapsed = float( clock() - begin_time ) /  CLOCKS_PER_SEC;
         float current_speed = global_cfg.subset_size / ((float(clock() - ss_time) / CLOCKS_PER_SEC));
@@ -218,6 +219,10 @@ void argument_parser(int argc, char* argv[]){
             }
 
             //  MISC
+            if(flag(argv[i], "-lr") || flag(argv[i], "--learning-rate")){
+                global_cfg.learning_rate = atoi(argv[++i]);
+            }
+
             if(flag(argv[i], "-d") || flag(argv[i], "--debug")){
                 global_cfg.debug = true;
             }
