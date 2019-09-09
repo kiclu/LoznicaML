@@ -76,6 +76,19 @@ MLL::Matrix& MLL::operator*(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
     return result;
 }
 
+MLL::Matrix& MLL::operator*(MLL::Matrix& t_matrix, double coef){
+    static MLL::Matrix result;
+    result.matrix_alloc(t_matrix.get_height(), t_matrix.get_width());
+
+    for(int i=0;i<result.get_height();i++){
+        for(int j=0;j<result.get_width();j++){
+            result[i][j] = coef * t_matrix[i][j];
+        }
+    }
+
+    return result;
+}
+
 MLL::Matrix& MLL::operator~(MLL::Matrix& t_matrix){
     static MLL::Matrix result;
     result.matrix_alloc(t_matrix.get_height(), t_matrix.get_width());
@@ -396,6 +409,20 @@ void MLL::Network::backprop(int t_subset_size){
             for(int j=0;j<m_layers[l];j++){
                 wgrad[l][i][j] /= t_subset_size;
                 m_weights[l][i][j] -= wgrad[l][i][j];
+            }
+        }
+    }
+    clear_gradients();
+}
+
+void MLL::Network::backprop(int t_subset_size, double t_lr){
+    for(int l=0;l<wgrad.size();l++){
+        for(int i=0;i<m_layers[l + 1];i++){
+            bgrad[l][i][0] /= t_subset_size;
+            m_biases[l][i][0] -= t_lr * bgrad[l][i][0];
+            for(int j=0;j<m_layers[l];j++){
+                wgrad[l][i][j] /= t_subset_size;
+                m_weights[l][i][j] -= t_lr * wgrad[l][i][j];
             }
         }
     }

@@ -56,6 +56,7 @@ namespace MLL{
         double get_cost();
 
         void backprop(int);
+        void backprop(int, double);
 
         void debug_out();
     };

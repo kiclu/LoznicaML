@@ -25,6 +25,7 @@ namespace MLL{
 
         friend Matrix& operator+(Matrix&, Matrix&);
         friend Matrix& operator*(Matrix&, Matrix&);
+        friend Matrix& operator*(Matrix&, double);
 
         // Sigmoid squishification
         friend Matrix& operator~(Matrix&);

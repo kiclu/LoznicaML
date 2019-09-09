@@ -8,6 +8,7 @@
 #include<vector>
 #include<fstream>
 #include<iostream>
+#include<algorithm>
 
 /*
 MNIST DATABASE
@@ -70,6 +71,8 @@ public:
     Image& get_at(int t_index){ return data[t_index]; }
 
     Image& operator[](int t_index){ return data[t_index]; }
+
+    void shuffle(){ random_shuffle(data.begin(), data.end()); }
 };
 
 
