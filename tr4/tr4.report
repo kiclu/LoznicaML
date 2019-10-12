@@ -1,7 +1,7 @@
 Training4
-Network size: [786 2000 1000 1500 1000 500 10]
+Network size: [786 2000 1500 1000 500 10]
 Success rate:
-epoch1 : 
+epoch1 : 9.8% ???
 epoch2 : 
 epoch3 : 
 epoch4 : 

@@ -1,8 +1,15 @@
 Training3
 Network size: [786 300 150 10]
-Success rate:
-epoch1 : 91.55%
-epoch2 : 
-epoch3 : 
-epoch4 : 
-epoch5 : 
+#       : test % : train %: lr
+epoch1  : 91.55% :
+epoch2  : 94.63% :
+epoch3  : 96.02% :
+epoch4  : 96.53% :
+epoch5  : 96.93% :
+epoch6  : 97.23% :
+epoch7  : 97.50% :
+epoch8  : 97.61% :        : 1.0
+epoch9  : 97.70% : 98.67% : 1.0
+epoch10 : 97.68% : 98.85% : 1.0
+epoch11 : 97.76% : 98.98% : 1.0
+epoch12 : 97.76% : 99.03% : 0.8

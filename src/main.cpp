@@ -41,6 +41,8 @@ bool flag(char*, char*);
 
 void time_out(float);
 
+void single_mode();
+
 void cfg_debug(){
     std::cout << global_cfg.training << std::endl;
     std::cout << global_cfg.test << std::endl;
@@ -66,7 +68,12 @@ void cfg_debug(){
 int main(int argc, char* argv[]){
     argument_parser(argc, argv);
 
-    //cfg_debug();
+    if(global_cfg.single){
+        single_mode();
+        return 0;
+    }
+
+    cfg_debug();
 
     std::cout << "Reading the data..." << std::endl;
     Dataset data(
@@ -137,10 +144,10 @@ int main(int argc, char* argv[]){
         time_out(eta);
 
         if(!global_cfg.training){
-            std::cout << "\n\n";
-            std::cout << std::setprecision(4) << "Success rate: " << (correct / (double)all) * 100 << "%";
+            std::cout << "\n";
+            std::cout << std::setprecision(4) << "Success rate: " << (correct / (double)all) * 100 << "%\n";
         }
-        std::cout << "\n====================\n";
+        std::cout << "====================\n";
     }
 
     std::cout << std::endl << std::endl;
@@ -150,10 +157,10 @@ int main(int argc, char* argv[]){
     time_out(float( clock () - begin_time ) /  CLOCKS_PER_SEC);
 
 
-    if(!global_cfg.training){
+    //if(!global_cfg.training){
         std::cout << std::endl << std::endl;
         std::cout << "SUCCESS RATE: " << std::setprecision(5) << (correct / (double)all) * 100 << "%\n";
-    }
+    //}
 
     if(global_cfg.training) net.write_to_file(global_cfg.network_data);
 
@@ -262,4 +269,37 @@ void time_out(float t_sec){
     sec = sec % 60;
 
     std::cout << hr << "h " << mn << "m " << sec << "s\n";
+}
+
+void single_mode(){
+    std::vector<double> single_input;
+    single_input.resize(784);
+    char tmp;
+
+    for(int i=0;i<single_input.size();i++){
+        std::cin >> tmp;
+        single_input[i] = tmp / (double)255;
+    }
+
+    MLL::Network net(
+        std::vector<int>(global_cfg.layer_size,
+        global_cfg.layer_size + global_cfg.layer_count)
+    );
+
+    net.read_from_file(global_cfg.network_data);
+
+    net.set_input_layer(single_input, 0);
+    net.calculate();
+
+    auto& res = net.get_result();
+    double rm = res[0];
+    int rmp = 0;
+    for(int i=0;i<res.size();i++){
+        if(res[i] > rm){
+            rm = res[i];
+            rmp = i;
+        }
+    }
+
+    std::cout << rmp;
 }

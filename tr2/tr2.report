@@ -2,7 +2,8 @@ Training2
 Network size: [786 500 150 10]
 Success rate:
 epoch1 : 91.43%
-epoch2 : 
-epoch3 : 
-epoch4 : 
-epoch5 : 
+epoch2 : 94.33%
+epoch3 : 95.63%
+epoch4 : 96.38%
+epoch5 : 96.78%
+epoch6 : 97.05%
