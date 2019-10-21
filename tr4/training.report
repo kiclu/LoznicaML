@@ -1,0 +1,9 @@
+Training Report
+Subset Size:    50
+Network Size:   [786 16 16 10]
+epoch # :   training %  :   test %  :   learning rate
+1       :   10.72%      :   11.35%  :   0.01
+2       :   11.24%      :   11.35%  :   0.01
+3       :   11.24%      :   11.35%  :   0.01
+4       :   11.24%      :   11.35%  :   0.01
+5       :   11.24%      :   11.35%  :   0.01

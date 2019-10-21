@@ -66,7 +66,6 @@ void cfg_debug(){
 int main(int argc, char* argv[]){
     argument_parser(argc, argv);
 
-    //cfg_debug();
 
     std::cout << "Reading the data..." << std::endl;
     Dataset data(
@@ -91,10 +90,11 @@ int main(int argc, char* argv[]){
         data.shuffle();
     }
 
-    std::cout << "Start" << std::endl;
+    std::cout << "START" << std::endl;
     const clock_t begin_time = clock();
     for(int ss = 0; ss < global_cfg.data_size; ss += global_cfg.subset_size){
         clock_t ss_time = clock();
+        cost = 0;
         for(int k = 0; k < global_cfg.subset_size; k++){
             int index = ss + k;
 
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
         float avg_time = time_elapsed / (ss + global_cfg.subset_size);
         float eta = (global_cfg.data_size - ss - global_cfg.subset_size) / current_speed;
         std::cout << "Images done: " << ss + global_cfg.subset_size << '\n';
-        std::cout << "Avg cost: " << cost/(double)(ss + global_cfg.subset_size) << '\n';
+        std::cout << "Avg cost: " << cost/(double)(global_cfg.subset_size) << '\n';
         std::cout << std::setprecision(3) << "Average time: " << avg_time << "s\n";
         std::cout << std::setprecision(3) << "Current speed: " << (int)current_speed << "/s\n";
         std::cout << "Time elapsed: ";
@@ -136,24 +136,19 @@ int main(int argc, char* argv[]){
         std::cout << "ETA: ";
         time_out(eta);
 
-        if(!global_cfg.training){
-            std::cout << "\n\n";
-            std::cout << std::setprecision(4) << "Success rate: " << (correct / (double)all) * 100 << "%";
-        }
+        std::cout << "\n\n";
+        std::cout << std::setprecision(4) << "Success rate: " << (correct / (double)all) * 100 << "%";
         std::cout << "\n====================\n";
     }
 
     std::cout << std::endl << std::endl;
-    std::cout << "Images done: " << global_cfg.data_size << '\n';
+    std::cout << "END\nImages done: " << global_cfg.data_size << '\n';
     std::cout << "Avg cost: " << cost_sum/(double)all << '\n';
     std::cout << "Time elapsed: ";
     time_out(float( clock () - begin_time ) /  CLOCKS_PER_SEC);
 
-
-    if(!global_cfg.training){
-        std::cout << std::endl << std::endl;
-        std::cout << "SUCCESS RATE: " << std::setprecision(5) << (correct / (double)all) * 100 << "%\n";
-    }
+    std::cout << std::endl << std::endl;
+    std::cout << "SUCCESS RATE: " << std::setprecision(4) << (correct / (double)all) * 100 << "%\n";
 
     if(global_cfg.training) net.write_to_file(global_cfg.network_data);
 
@@ -220,7 +215,7 @@ void argument_parser(int argc, char* argv[]){
 
             //  MISC
             if(flag(argv[i], "-lr") || flag(argv[i], "--learning-rate")){
-                global_cfg.learning_rate = atoi(argv[++i]);
+                global_cfg.learning_rate = atof(argv[++i]);
             }
 
             if(flag(argv[i], "-d") || flag(argv[i], "--debug")){
