@@ -1,5 +1,5 @@
 CC=			g++
-CFLAGS= 	-std=c++11 -Wall -w -g
+CFLAGS= 	-std=c++11 -Wall -w -g -pthread
 INCLUDE:= 	-I include/
 BIN=		bin/*.cpp
 SOURCE:= 	src/*.cpp

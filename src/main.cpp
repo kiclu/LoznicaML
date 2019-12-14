@@ -1,6 +1,7 @@
 #include<iostream>
 #include<iomanip>
 #include<time.h>
+#include<chrono>
 #include<string>
 #include<string.h>
 
@@ -91,9 +92,9 @@ int main(int argc, char* argv[]){
     }
 
     std::cout << "START" << std::endl;
-    const clock_t begin_time = clock();
+    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
     for(int ss = 0; ss < global_cfg.data_size; ss += global_cfg.subset_size){
-        clock_t ss_time = clock();
+        std::chrono::system_clock::time_point ss_time = std::chrono::system_clock::now();
         cost = 0;
         for(int k = 0; k < global_cfg.subset_size; k++){
             int index = ss + k;
@@ -105,6 +106,11 @@ int main(int argc, char* argv[]){
             if(global_cfg.training) net.update_gradients();
 
             auto& res = net.get_result();
+
+            std::cout << "RSEULT :" << std::endl;
+            for(auto& r : res) std::cout << r << " ";
+            std::cout << std::endl << std::endl;
+
             double rm = res[0];
             int rmp = 0;
             for(int i=0;i<res.size();i++){
@@ -123,10 +129,15 @@ int main(int argc, char* argv[]){
         }
         if(global_cfg.training) net.backprop(global_cfg.subset_size, global_cfg.learning_rate);
 
-        float time_elapsed = float( clock() - begin_time ) /  CLOCKS_PER_SEC;
-        float current_speed = global_cfg.subset_size / ((float(clock() - ss_time) / CLOCKS_PER_SEC));
-        float avg_time = time_elapsed / (ss + global_cfg.subset_size);
-        float eta = (global_cfg.data_size - ss - global_cfg.subset_size) / current_speed;
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> time_elapsed_dur(now - start);
+        double time_elapsed = time_elapsed_dur.count();
+        std::chrono::duration<double> time_ss_dur(now - ss_time);
+        double time_ss = time_ss_dur.count();
+        double current_speed = global_cfg.subset_size / (time_ss);
+        double avg_time = time_elapsed / (ss + global_cfg.subset_size);
+        double eta = (global_cfg.data_size - ss - global_cfg.subset_size) / current_speed;
         std::cout << "Images done: " << ss + global_cfg.subset_size << '\n';
         std::cout << "Avg cost: " << cost/(double)(global_cfg.subset_size) << '\n';
         std::cout << std::setprecision(3) << "Average time: " << avg_time << "s\n";
@@ -145,7 +156,10 @@ int main(int argc, char* argv[]){
     std::cout << "END\nImages done: " << global_cfg.data_size << '\n';
     std::cout << "Avg cost: " << cost_sum/(double)all << '\n';
     std::cout << "Time elapsed: ";
-    time_out(float( clock () - begin_time ) /  CLOCKS_PER_SEC);
+
+    std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+    std::chrono::duration<double> total_time(end - start);
+    time_out(total_time.count());
 
     std::cout << std::endl << std::endl;
     std::cout << "SUCCESS RATE: " << std::setprecision(4) << (correct / (double)all) * 100 << "%\n";

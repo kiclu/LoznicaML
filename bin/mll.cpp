@@ -53,6 +53,16 @@ MLL::Matrix& MLL::operator+(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
     return result;
 }
 
+void MLL::mult_threading(MLL::Matrix& res, int tn, MLL::Matrix& t_m1, MLL::Matrix& t_m2){
+    for(int i=tn*res.get_height()/thread_count;i<(tn+1)*res.get_height()/thread_count;++i){
+        for(int j=0;j<res.get_width();++j){
+            for(int k=0;k<t_m1.get_width();++k){
+                res[i][j] += t_m1[i][k] * t_m2[k][j];
+            }
+        }
+    }
+}
+
 MLL::Matrix& MLL::operator*(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
     if(t_matrix1.get_width() != t_matrix2.get_height()){
         std::cout << "Unmatched sizes (*)" << std::endl;
@@ -64,15 +74,15 @@ MLL::Matrix& MLL::operator*(MLL::Matrix& t_matrix1, MLL::Matrix& t_matrix2){
     static MLL::Matrix result;
     result.matrix_alloc(t_matrix1.get_height(), t_matrix2.get_width());
 
-    for(int i=0;i<t_matrix1.get_height();i++){
-        for(int j=0;j<t_matrix2.get_width();j++){
-            result[i][j] = 0;
-            for(int k=0;k<t_matrix1.get_width();k++){
-                result[i][j] += t_matrix1[i][k] * t_matrix2[k][j];
-            }
-        }
+    std::thread threads[thread_count];
+
+    for(int i=0;i<thread_count;++i){
+        threads[i] = std::thread(mult_threading, std::ref(result), i,
+                                 std::ref(t_matrix1), std::ref(t_matrix2));
     }
 
+    for(auto& th : threads) th.join();
+    
     return result;
 }
 

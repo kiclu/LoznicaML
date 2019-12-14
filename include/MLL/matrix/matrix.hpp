@@ -6,9 +6,12 @@
 #include<iostream>
 #include<math.h>
 #include<time.h>
-
+#include<thread>
 
 namespace MLL{
+    //const int thread_count = std::thread::hardware_concurrency();
+    const int thread_count = 8;
+
     class Matrix{
     private:
         std::vector< std::vector<double> > m_matrix;
@@ -52,6 +55,8 @@ namespace MLL{
     Matrix& operator+(Matrix&, Matrix&);
     Matrix& operator*(Matrix&, Matrix&);
     Matrix& operator~(Matrix&);
+
+    void mult_threading(Matrix& res, int tn, Matrix& t_m1, Matrix& t_m2);
 }
 
 
